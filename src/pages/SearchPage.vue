@@ -150,28 +150,19 @@ export default {
     };
   },
   mounted() {
-    console.log("mounted");
     this.cuisines.push(...cuisines);
     this.diet.push(...diet);
     this.intolerances.push(...intolerances);
     this.check_local_storage();
     if (this.$root.store.username){
-      console.log(this.$root.store.search_url_)
-      //this.last=this.$root.store.search_url_.substring(this.$root.store.search_url_.indexOf('query=')+6).substring(0,this.$root.store.search_url_.substring(this.$root.store.search_url_.indexOf('query=')+6).indexOf('&'));
-      //this.last=extractParameters(this.$root.store.search_url_);
       let queryString=this.$root.store.search_url_;
       this.last=this.$root.store.search_url_.substring(queryString.indexOf('?')+1, queryString.indexOf('&instructionsRequired')).replace(/&/g, ', ')
       this.last = this.last.startsWith(", ") ? this.last.slice(2) : this.last;
-      console.log("mounted3");
     }
     else{
-      console.log("mounted2");
       this.last="";
       this.$root.store.search_url_="";
     }
-    // this.last=this.$root.store.search_url_.substring(this.$root.store.search_url_.indexOf('query=')+6).substring(0,this.$root.store.search_url_.substring(this.$root.store.search_url_.indexOf('query=')+6).indexOf('&'));
-
-    // console.log($v);
   },
   methods: {
     async extractParameters(url) {
@@ -183,7 +174,6 @@ export default {
       for (let i = 0; i < paramStrings.length-2 ; i++) {
         const paramString = paramStrings[i];
         const [key, value] = paramString.split('=');
-        //params[key] = decodeURIComponent(value);
         if(i===paramStrings.length-3){
           returns=returns+key+": "+value+"."
         }

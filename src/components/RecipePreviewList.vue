@@ -43,7 +43,8 @@ export default {
     return {
       recipes: [],
       no_recipe: false,
-      no_recipe_search: false
+      no_recipe_search: false,
+      reloadKey: 0
     };
   },
   mounted() {
