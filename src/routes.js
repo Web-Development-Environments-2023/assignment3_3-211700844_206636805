@@ -8,6 +8,11 @@ const routes = [
     component: Main,
   },
   {
+    path: "/about",
+    name: "about",
+    component: () => import("./pages/AboutPage"),
+  },
+  {
     path: "/register",
     name: "register",
     component: () => import("./pages/RegisterPage"),
@@ -23,9 +28,39 @@ const routes = [
     component: () => import("./pages/SearchPage"),
   },
   {
-    path: "/recipe/:recipeId",
+    path: "/route_name/:route_name/recipe/:recipe_id",
     name: "recipe",
     component: () => import("./pages/RecipeViewPage"),
+  },
+  {
+    path: "/myrecipes",
+    name: "myrecipes",
+    component: () => import("./pages/MyRecipesPage"),
+  },
+  {
+    path: "/myfamilyrecipes",
+    name: "myfamilyrecipes",
+    component: () => import("./pages/MyFamilyRecipesPage"),
+  },
+  // {
+  //   path: "/prepareRecipe",
+  //   name: "PrepareRecipe",
+  //   component: () => import("./pages/PrepareRecipePage"),
+  // },
+  // {
+  //   path: "/meal",
+  //   name: "meal",
+  //   component: () => import("./pages/MealPage"),
+  // },
+  {
+    path: "/users/CreateRecipe",
+    name: "create",
+    component: () => import("./pages/CreateRecipePage"),
+  },
+  {
+    path: "/myfavoriterecipes",
+    name: "myfavoriterecipes",
+    component: () => import("./pages/MyFavoriteRecipesPage"),
   },
   {
     path: "*",

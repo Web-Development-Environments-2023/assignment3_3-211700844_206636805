@@ -1,141 +1,125 @@
 <template>
-  <router-link
-    :to="{ name: 'recipe', params: { recipeId: recipe.id } }"
-    class="recipe-preview"
-  >
-    <div class="recipe-body">
-      <img v-if="image_load" :src="recipe.image" class="recipe-image" />
-    </div>
-    <div class="recipe-footer">
-      <div :title="recipe.title" class="recipe-title">
-        {{ recipe.title }}
-      </div>
-      <ul class="recipe-overview">
-        <li>{{ recipe.readyInMinutes }} minutes</li>
-        <li>{{ recipe.aggregateLikes }} likes</li>
-      </ul>
-    </div>
-  </router-link>
+  <div>
+   <b-card 
+     pill
+     class="recipePreviewDetails" 
+     tag="article"
+     style="max-width: 23rem;">
+     <router-link :to="getRouterLink()" style="color: rgba(231, 193, 67, 0.684);" class="recipe-preview">  <img :src="recipe.image" :alt="recipe.title" class="image-grow" style="width: 100%;" @click.stop /></router-link>
+     <b-card-title style="font-size:28px; color: rgba(231, 193, 67, 0.684); font-weight: bold; font-family: italic;" class="text-center"><b>{{recipe_title}}</b></b-card-title>
+     <b-card-text class="recipePreviewDetailsText">
+       <b-list-group >
+         <dt style="color: rgba(255, 255, 255, 0.955)" v-if="is_family">This dish usually prepared by {{ recipe.owner }}.<br></dt>
+         <dt style="color: rgba(255, 255, 255, 0.955)" v-if="is_family">Traditionally, the dish is prepared on {{ recipe.when_used }}.<br></dt>
+         <dt style="color: rgba(255, 255, 255, 0.955)" v-if="is_family">ingredients: {{ recipe.ingredients }}.<br></dt>
+         <dt style="color: rgba(255, 255, 255, 0.955)" v-if="is_family">analyzed instructions: {{ recipe.analyzedInstructions }}</dt>
+
+         <dt v-if="!is_family"><img src="../assets/clock.png" style="width: 30px"/>     {{ recipe.readyInMinutes }} minutes to prepare</dt>
+         <dt v-if="!is_family">{{ recipe.aggregateLikes }} <img src="../assets/like.png" style="width: 22px"/> this recipe</dt>
+         <dt v-if="!is_family && recipe.vegan"><img src="../assets/vegan.png" style="width: 30px"/>   Vegan</dt>
+         <dt v-if="!is_family && recipe.vegetarian"><img src="../assets/vegetarian.png" style="width: 30px"/> Vegeterian</dt>
+         <dt v-if="!is_family && recipe.glutenFree"><img src="../assets/gluten-free.png" style="width: 25px"/> Gluten Free</dt>
+         <dt v-if="!is_family &&!is_my && recipe.favorite"><img src="../assets/love.png" style="width: 30px"/>  Favorite Recipe</dt>
+         <button v-if="$root.store.username && !is_family && !is_my && !recipe.favorite"  v-on:click="AddToFavorites" style="color: white; background: transparent; border: none; width: 250px; margin-left: 30px;"><img src="../assets/no_love.png" style="width: 30px" />No in Favorite</button>
+         <dt v-if="!is_family && !is_my  && recipe.seen"><img src="../assets/check.png" style="width: 25px"/>   Viewed Recipe</dt>
+       </b-list-group>
+     </b-card-text>
+   </b-card>
+   <br>
+  </div>
 </template>
 
-<script>
-export default {
-  mounted() {
-    this.axios.get(this.recipe.image).then((i) => {
-      this.image_load = true;
-    });
+ 
+ <script>
+ export default {
+ 
+   data() {
+     return {
+        API_route: false,
+        is_family: false,
+        is_my: false,
+        recipe_title: ""
+       //  split_route: ""
+     };
+   },
+   props: {
+     recipe: {
+       type: Object,
+       required: true
+     },
+     title: {
+       type: String,
+       required: true
+     },
+     route_name:{
+       type: String,
+       required: true
+     },
+   },
+   //
+ mounted() {
+  this.updateRecipes()
+  this.recipe_title= this.recipe.title;
+  console.log(this.$route.path)
   },
-  data() {
-    return {
-      image_load: false
-    };
-  },
-  props: {
-    recipe: {
-      type: Object,
-      required: true
-    }
+  methods: {
+     async updateRecipes() {
+        try {
+          if(this.$route.path==="/myfamilyrecipes"){
+              console.log("family")
+              this.is_family = true;
+          }
+          if(this.$route.path==="/myrecipes"){
+              console.log("my")
+              this.is_my = true;
+          }
+        }catch (error) {
+          console.log(error);
+       }
+     },
 
-    // id: {
-    //   type: Number,
-    //   required: true
-    // },
-    // title: {
-    //   type: String,
-    //   required: true
-    // },
-    // readyInMinutes: {
-    //   type: Number,
-    //   required: true
-    // },
-    // image: {
-    //   type: String,
-    //   required: true
-    // },
-    // aggregateLikes: {
-    //   type: Number,
-    //   required: false,
-    //   default() {
-    //     return undefined;
-    //   }
-    // }
-  }
-};
-</script>
+    getRouterLink() {
+      if(this.route_name === "/users/getfamilyrecipes"){
+        return{name:"myfamilyrecipes"};
+      }
+      return {
+        name: 'recipe',
+        params: {
+          recipe_id: this.route_name === '/recipes/search' ? this.recipe.id : this.recipe.recipe_id,
+          route_name: this.route_name
+        }
+      };
+    }, 
+    async AddToFavorites(){
+      const response = await this.axios.post(
+        // "https://test-for-3-2.herokuapp.com/user/Register",
+        this.$root.store.server_domain + "/users/addtofavorites",
+        {
+          recipe_id: this.route_name === '/recipes/search' ? this.recipe.id : this.recipe.recipe_id
+        },
+        {withCredentials: true}
+      );
+      window.location.reload();
+   }
+   }
+   
+ };
+ </script>
+ 
+ <style scoped>
+ .recipePreviewDetails{
+   background-color: #00010369;
+ }
+ .recipePreviewDetailsText{
+   color: rgba(255, 255, 255, 0.955)     
+ }
 
-<style scoped>
-.recipe-preview {
-  display: inline-block;
-  width: 90%;
-  height: 100%;
-  position: relative;
-  margin: 10px 10px;
-}
-.recipe-preview > .recipe-body {
-  width: 100%;
-  height: 200px;
-  position: relative;
-}
-
-.recipe-preview .recipe-body .recipe-image {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: auto;
-  margin-bottom: auto;
-  display: block;
-  width: 98%;
-  height: auto;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  background-size: cover;
+ .image-grow {
+transition: transform 0.2s ease;
 }
 
-.recipe-preview .recipe-footer {
-  width: 100%;
-  height: 50%;
-  overflow: hidden;
+.image-grow:hover {
+transform: scale(1.2);
 }
 
-.recipe-preview .recipe-footer .recipe-title {
-  padding: 10px 10px;
-  width: 100%;
-  font-size: 12pt;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-}
-
-.recipe-preview .recipe-footer ul.recipe-overview {
-  padding: 5px 10px;
-  width: 100%;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -o-box-flex: 1;
-  box-flex: 1;
-  -webkit-flex: 1 auto;
-  -ms-flex: 1 auto;
-  flex: 1 auto;
-  table-layout: fixed;
-  margin-bottom: 0px;
-}
-
-.recipe-preview .recipe-footer ul.recipe-overview li {
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -o-box-flex: 1;
-  -ms-box-flex: 1;
-  box-flex: 1;
-  -webkit-flex-grow: 1;
-  flex-grow: 1;
-  width: 90px;
-  display: table-cell;
-  text-align: center;
-}
-</style>
+ </style>
